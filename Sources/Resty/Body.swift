@@ -9,27 +9,20 @@ import Foundation
 
 struct Body: CustomStringConvertible {
     var data: Data?
-    var contentType: String?
-    init(data: Data, contentType: String? = nil) {
+    var contentType: ContentType?
+    init(data: Data, contentType: ContentType? = nil) {
         self.data = data
         self.contentType = contentType
     }
-    init(data: Data, contentType: ContentType) {
-        self.init(data: data, contentType: contentType.description)
-    }
-    init?(data: Data?, contentType: String? = nil) {
+    init?(data: Data?, contentType: ContentType? = nil) {
         guard let data = data else { return nil }
         self.init(data: data, contentType: contentType)
     }
-    init?(data: Data?, contentType: ContentType) {
-        guard let data = data else { return nil }
-        self.init(data: data, contentType: contentType)
-    }
-    init(string: String, using encoding: String.Encoding = .utf8, contentType: String = ContentType.plain.description) {
+    init(string: String, using encoding: String.Encoding = .utf8, contentType: ContentType = .plain()) {
         self.data = string.data(using: encoding)
         self.contentType = contentType
     }
-    init?<T: Encodable>(encodable: T, contentType: String = ContentType.json.description) {
+    init?<T: Encodable>(encodable: T, contentType: ContentType = .json()) {
         do {
             self.data = try JSONEncoder().encode(encodable)
             self.contentType = contentType

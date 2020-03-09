@@ -10,15 +10,15 @@ import Foundation
 /**
  Possible errors that can be thrown by Resty
  */
-enum RestyError: Error, CustomStringConvertible {
-    case noData(String)
-    case badRequest(Data?)
-    case unauthorized(Data?)
-    case forbidden(Data?)
-    case notFound(Data?)
-    case internalServerError(Data?)
-    case couldNotDecode(Data?)
-    case otherFailureCode(Int, Data?)
+enum RESTCallError: Error, CustomStringConvertible {
+    case noData(description: String = "No Data")
+    case badRequest(data: Data? = nil)
+    case unauthorized(data: Data? = nil)
+    case forbidden(data: Data? = nil)
+    case notFound(data: Data? = nil)
+    case internalServerError(data: Data? = nil)
+    case couldNotDecode(data: Data? = nil)
+    case otherFailureCode(statusCode: Int, data: Data? = nil)
     
     /// Gets the data (if any) associated with the error.
     var data: Data? {
@@ -51,7 +51,7 @@ enum RestyError: Error, CustomStringConvertible {
     /// Gets a brief string description associated with the error.
     var description: String {
         switch self {
-        case .noData(let errorDescription): return errorDescription
+        case .noData(let description): return description
         case .badRequest: return "Bad Request"
         case .unauthorized: return "Unauthorized"
         case .forbidden: return "Forbidden"

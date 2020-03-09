@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BodyParameters: RestyMap {
+struct BodyParameters: KeyValueMap {
     var values: [String : String] = [:]
     init(with values: [String : String] = [:]) {
         self.values = values

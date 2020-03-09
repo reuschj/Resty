@@ -215,7 +215,7 @@ enum RequestHeader: CustomStringConvertible {
     case xRequestedWith(String)
     case xDoNotTrack(String)
     case xAPIKey(String)
-    case other(String, String)
+    case other(key: String, value: String)
     
     var key: String {
         switch self {
@@ -271,7 +271,7 @@ enum RequestHeader: CustomStringConvertible {
         case .acceptLanguage(let value): return value
         case .accessControlRequestHeaders(let value): return value
         case .accessControlRequestMethod(let value): return value
-        case .authorization(let value): return value
+        case .authorization(let value): return value.description
         case .cacheControl(let cacheControlType): return cacheControlType.description
         case .connection(let value): return value.description
         case .contentMD5(let value): return value
@@ -328,7 +328,7 @@ struct HTTPHeader: Hashable, Equatable, KeyValueStore {
     }
 }
 
-struct HTTPHeaders: RestyMap {
+struct HTTPHeaders: KeyValueMap {
     var values: [String : HTTPHeader] = [:]
     mutating func setValue(_ value: KeyValuePair.Value, for key: KeyValuePair.Key) {
         if var header = values[key] {

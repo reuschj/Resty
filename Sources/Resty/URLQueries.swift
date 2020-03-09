@@ -17,7 +17,7 @@ extension URLQueryItem: KeyValueStore {
     }
 }
 
-public struct URLQueries: RestyMap {
+public struct URLQueries: KeyValueMap {
     var values: [String : URLQueryItem] = [:]
     var queryItems: [URLQueryItem] { Array(self.values.values) }
     init(with queryItems: [URLQueryItem] = []) {

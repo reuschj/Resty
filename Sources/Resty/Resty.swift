@@ -7,11 +7,11 @@
 
 import Foundation
 
-typealias RESTCompletionHandler = (Result<Data, RestyError>, Response, Int) -> Void
-typealias FailureHandler = (RestyError, Response, Int) -> Void
-typealias SuccessHandler = (Data, Response, Int) -> Void
+typealias RESTCompletionHandler = (Response) -> Void
+typealias SuccessHandler = (Data, Response) -> Void
+typealias FailureHandler = (RESTCallError, Response) -> Void
 
-typealias DecodeCompletionHandler<T: Decodable> = (Result<T, RestyError>, Response, Int) -> Void
+typealias DecodeCompletionHandler<T: Decodable> = (Response, Result<T, RESTCallError>) -> Void
 
 struct RequestSetup {
     var headers: HTTPHeaders? = nil
@@ -53,18 +53,18 @@ struct Resty {
         self.body = body
         self.headers = setup.headers
         if let contentType = body?.contentType {
+            let httpHeader = HTTPHeader(with: .contentType(contentType))
             if var headers = self.headers {
-                let contentTypeKey = HTTPHeaders.CommonRequestHeaders.contentType.description
-                if !headers.has(key: contentTypeKey) {
-                    headers.set(contentType, for: contentTypeKey)
+                if !headers.has(key: httpHeader.key) {
+                    headers.set(httpHeader, for: httpHeader.key)
                 }
             } else {
-                self.headers = HTTPHeaders(with: HTTPHeaders.HTTPHeader(key: .contentType, value: contentType))
+                self.headers = HTTPHeaders(with: httpHeader)
             }
         }
         self.urlRequest = URLRequest(url: url, cachePolicy: setup.cachePolicy, timeoutInterval: setup.timeoutInterval)
         urlRequest.httpMethod = method.rawValue
-        self.headers?.map { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
+        self.headers?.map { urlRequest.setValue($0.value.value, forHTTPHeaderField: $0.value.key) }
         urlRequest.httpBody = body?.data
     }
     init(
@@ -79,37 +79,43 @@ struct Resty {
     
     mutating func send(onCompletion completionHandler: @escaping RESTCompletionHandler) {
         let task = URLSession.shared.dataTask(with: urlRequest) { [self] data, urlResponse, error in
-            let response = Response(data: data, response: urlResponse, error: error, successCondition: Response.defaultSuccessCondition)
-            completionHandler(response.result, response, response.statusCode)
+            let response = Response(
+                data: data,
+                response: urlResponse,
+                error: error,
+                successCondition: Response.defaultSuccessCondition
+            )
+            completionHandler(response)
             self.semaphore.signal()
         }
         task.resume()
         self.semaphore.wait()
     }
+    
     mutating func send(onfailure failureHandler: @escaping FailureHandler, onSuccess successHandler: @escaping SuccessHandler) {
-        self.send { result, response, statusCode in
-            switch result {
+        self.send { response in
+            switch response.result {
             case .success(let data):
-                successHandler(data, response, statusCode)
+                successHandler(data, response)
             case .failure(let restCallError):
-                failureHandler(restCallError, response, statusCode)
+                failureHandler(restCallError, response)
             }
         }
     }
     
     mutating func decode<T: Decodable>(_ type: T.Type, onCompletion completionHandler: @escaping DecodeCompletionHandler<T>) {
-        self.send { result, response, statusCode in
+        self.send { response in
             let decoder = JSONDecoder()
-            switch result {
+            switch response.result {
             case .success(let data):
                 do {
                     let value = try decoder.decode(type, from: data)
-                    completionHandler(.success(value), response, statusCode)
+                    completionHandler(response, .success(value))
                 } catch {
-                    completionHandler(.failure(.couldNotDecode(data)), response, statusCode)
+                    completionHandler(response, .failure(.couldNotDecode(data: data)))
                 }
             case .failure(let restCallError):
-                completionHandler(.failure(restCallError), response, statusCode)
+                completionHandler(response, .failure(restCallError))
             }
         }
         

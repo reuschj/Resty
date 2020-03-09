@@ -224,4 +224,6 @@ enum ContentType: CustomStringConvertible {
     
     var type: String { String(mimeType.split(separator: "/")[0]) }
     var subType: String { String(mimeType.split(separator: "/")[1]) }
+
+    static let key = "Content-Type"
 }
