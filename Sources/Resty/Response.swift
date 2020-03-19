@@ -10,7 +10,11 @@ import Foundation
 public typealias ResponseChecker = (HTTPURLResponse?) -> Bool
 
 struct Response {
-    var result: Result<Data, RESTCallError>
+    private var _result: Result<Data, RESTCallError>! = nil
+    var result: Result<Data, RESTCallError> {
+        get { self._result }
+        set { self._result = newValue }
+    }
     var data: Data?
     var error: RESTCallError?
     var baseError: Error?
@@ -35,7 +39,7 @@ struct Response {
         _ = response?.allHeaderFields.map { header in
             guard let key = header.key as? String, let value = header.value as? String else { return }
             let httpHeader = HTTPHeader(key: key, value: value)
-            self.headers.set(httpHeader, for: key)
+            self.headers.set(httpHeader, forKey: key)
         }
     }
     

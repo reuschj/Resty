@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct BodyParameters: KeyValueMap {
-    var values: [String : String] = [:]
-    init(with values: [String : String] = [:]) {
+struct BodyParameters {
+    var values: [String : Any] = [:]
+    init(with values: [String : Any] = [:]) {
         self.values = values
     }
 }

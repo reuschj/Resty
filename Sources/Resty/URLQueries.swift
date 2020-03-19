@@ -7,13 +7,15 @@
 
 import Foundation
 
-extension URLQueryItem: KeyValueStore {
-    var key: String {
-        get { self.name }
-        set { self.name = newValue }
+extension URLQueryItem: KeyValueConvertible {    
+    func getKey() -> String { self.name }
+    func getValue() -> String? { self.value }
+    func getValue(default defaultValue: String) -> String { value ?? defaultValue }
+    mutating func setKey(_ key: String) {
+        self.name = key
     }
-    init(key: String, value: String) {
-        self.init(name: key, value: value)
+    mutating func setValue(_ value: String) {
+        self.value = value
     }
 }
 

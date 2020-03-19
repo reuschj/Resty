@@ -7,18 +7,27 @@
 
 import Foundation
 
-protocol KeyValueStore {
+/**
+ A type that can be used in a key:value situation.
+ This only requires that they type can extract a key and possible value and not that they type have explicit "key" and "value" properties
+ */
+protocol KeyValueConvertible {
     associatedtype Key where Key: Hashable
     associatedtype Value where Value: Equatable & Comparable
-    var key: Key { get set }
-    var value: Value { get set }
-    init(key: String, value: String)
+    func getKey() -> Key
+    func getValue() -> Value?
+    func getValue(default: Value) -> Value
+    mutating func setKey(_ key: Key) -> Void
+    mutating func setValue(_ value: Value) -> Void
 }
 
+/**
+ Holds a grouping of types with a key and value and uses the key of each for hash lookup
+ */
 protocol KeyValueMap {
-    associatedtype KeyValuePair where KeyValuePair: KeyValueStore & Hashable
+    associatedtype KeyValuePair where KeyValuePair: KeyValueConvertible & Hashable
     
-    var values: [KeyValuePair.Key:KeyValuePair] { get set }
+    var values: [KeyValuePair.Key : KeyValuePair] { get set }
     var count: Int { get }
     
     subscript(key: KeyValuePair.Key) -> KeyValuePair? { get set }
@@ -30,15 +39,18 @@ protocol KeyValueMap {
     func get(forKey key: KeyValuePair.Key) -> KeyValuePair?
     func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value?
     
-    mutating func set(_ value: KeyValuePair, for key: KeyValuePair.Key) -> Void
-    mutating func setValue(_ value: KeyValuePair.Value, for key: KeyValuePair.Key) -> Void
+    mutating func set(_ value: KeyValuePair, forKey key: KeyValuePair.Key) -> Void
+    mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) -> Void
     
     mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value?
     
     @discardableResult func map<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair)) throws -> T) rethrows -> [T]
-    @discardableResult func mapValues<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair.Value)) throws -> T) rethrows -> [T]
+    @discardableResult func mapValues<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair.Value?)) throws -> T) rethrows -> [T]
 }
 
+/**
+ Default implementations
+ */
 extension KeyValueMap {
     var count: Int { values.count }
     
@@ -47,22 +59,25 @@ extension KeyValueMap {
         set { values[key] = newValue }
     }
     
-    func has(_ value: KeyValuePair) -> Bool { values[value.key] != nil }
+    func has(_ value: KeyValuePair) -> Bool { values[value.getKey()] != nil }
     func has(key: KeyValuePair.Key) -> Bool { values[key] != nil }
     func has(value: KeyValuePair.Value) -> Bool {
         for keyValuePair in values {
-            if keyValuePair.value.value == value { return true }
+            guard let embeddedValue = keyValuePair.value.getValue() else { continue }
+            if embeddedValue == value { return true }
         }
         return false
     }
     
     func get(forKey key: KeyValuePair.Key) -> KeyValuePair? { values[key] }
-    func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value? { values[key]?.value }
+    func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value? { values[key]?.getValue() }
     
-    mutating func set(_ value: KeyValuePair, for key: KeyValuePair.Key) { values[key] = value }
-    mutating func setValue(_ value: KeyValuePair.Value, for key: KeyValuePair.Key) { values[key]?.value = value }
+    mutating func set(_ value: KeyValuePair, forKey key: KeyValuePair.Key) { values[key] = value }
+    mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) {
+        values[key]?.setValue(value)
+    }
     
-    mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value? { values.removeValue(forKey: key)?.value }
+    mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value? { values.removeValue(forKey: key)?.getValue() }
     
     @discardableResult
     func map<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair)) throws -> T) rethrows -> [T] {
@@ -70,7 +85,7 @@ extension KeyValueMap {
     }
     
     @discardableResult
-    func mapValues<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair.Value)) throws -> T) rethrows -> [T] {
-        try values.map { try transform((key: $0.key, value: $0.value.value)) }
+    func mapValues<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair.Value?)) throws -> T) rethrows -> [T] {
+        try values.map { try transform((key: $0.key, value: $0.value.getValue())) }
     }
 }
