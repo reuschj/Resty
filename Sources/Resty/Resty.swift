@@ -13,16 +13,14 @@ typealias FailureHandler = (RESTCallError, Response) -> Void
 
 typealias DecodeCompletionHandler<T: Decodable> = (Response, Result<T, RESTCallError>) -> Void
 
-/**
- Optional misc. settings for REST calls
- */
+/// Optional misc. settings for REST calls
 struct RequestOptions {
     var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     var timeoutInterval: Double = Double.infinity
 }
 
 /**
- The main tool to store all information for a REST call, send the request to the server and manage the response
+ The main tool to store all information for a REST call, send the request to the server and manage the response.
  */
 struct Resty {
     var url: URL

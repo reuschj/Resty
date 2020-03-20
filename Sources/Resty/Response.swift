@@ -9,31 +9,44 @@ import Foundation
 
 public typealias ResponseChecker = (HTTPURLResponse?) -> Bool
 
-struct Response {
-    private var _result: Result<Data, RESTCallError>! = nil
-    var result: Result<Data, RESTCallError> {
+public struct Response {
+    /// Holds data from a successful response or an error
+    public var result: Result<Data, RESTCallError> {
         get { self._result }
         set { self._result = newValue }
     }
-    var data: Data?
-    var error: RESTCallError?
-    var baseError: Error?
-    var httpURLResponse: HTTPURLResponse?
-    var headers: HTTPHeaders = HTTPHeaders()
+    // Backing field for result
+    private var _result: Result<Data, RESTCallError>! = nil
     
-    private var successCondition: ResponseChecker = Response.defaultSuccessCondition {
+    /// Possible data from a successful response
+    public var data: Data?
+    
+    /// Possible error from a failed response
+    public var error: RESTCallError?
+    
+    /// Holds the original error from the response (if there is one) before being converted to a `RESTCallError`
+    public var originalError: Error?
+    
+    /// Holds the original `HTTPURLResponse` response
+    public var httpURLResponse: HTTPURLResponse?
+    
+    /// HTTP response header map
+    public var headers: HTTPHeaders = HTTPHeaders()
+    
+    /// A condition the response must meet to be considered a success vs. failure
+    var successCondition: ResponseChecker = Response.defaultSuccessCondition {
         didSet { setResult() }
     }
     
-    var statusCode: Int { httpURLResponse?.statusCode ?? 500 }
-    var url: URL? { httpURLResponse?.url }
-    var mimeType: String? { httpURLResponse?.mimeType }
-    var allHeaderFields: [AnyHashable : Any] { httpURLResponse?.allHeaderFields ?? [:] }
+    public var statusCode: Int { httpURLResponse?.statusCode ?? 500 }
+    public var url: URL? { httpURLResponse?.url }
+    public var mimeType: String? { httpURLResponse?.mimeType }
+    public var allHeaderFields: [AnyHashable : Any] { httpURLResponse?.allHeaderFields ?? [:] }
     
     init(data: Data?, response: HTTPURLResponse? = nil, error: Error? = nil, successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition) {
         self.data = data
         self.httpURLResponse = response
-        self.baseError = error
+        self.originalError = error
         self.successCondition = successCondition
         self.setResult(data: data, response: response)
         _ = response?.allHeaderFields.map { header in
@@ -51,7 +64,7 @@ struct Response {
     private mutating func setResult(data: Data? = nil, response: HTTPURLResponse? = nil) {
         var error: RESTCallError
         guard let data = data else {
-            error = .noData(description: String(describing: baseError))
+            error = .noData(description: String(describing: originalError))
             self.error = error
             self.result = .failure(error)
             return

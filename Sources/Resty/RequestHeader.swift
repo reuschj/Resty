@@ -7,10 +7,9 @@
 
 import Foundation
 
-/**
- An enum of the most common request header settings 
- */
-enum RequestHeader: CustomStringConvertible {
+/// An enum of the most common request header settings
+// TODO: Dig into more of these
+public enum RequestHeader: CustomStringConvertible {
     case accept(ContentType)
     case acceptCharset(String)
     case acceptEncoding(String)

@@ -7,15 +7,13 @@
 
 import Foundation
 
-/**
- Enum of HTTP REST request method types
- */
-enum HTTPMethod: String, RawRepresentable, CustomStringConvertible {
+/// Enum of HTTP REST request method types
+public enum HTTPMethod: String, RawRepresentable, CustomStringConvertible {
     case get = "GET"
     case post = "POST"
     case put = "PUT"
     case patch = "PATCH"
     case delete = "DELETE"
     
-    var description: String { self.rawValue }
+    public var description: String { self.rawValue }
 }
