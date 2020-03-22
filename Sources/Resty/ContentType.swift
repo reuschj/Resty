@@ -7,7 +7,10 @@
 
 import Foundation
 
-enum ContentType: CustomStringConvertible {
+public enum ContentType: CustomStringConvertible {
+    
+    // 📰 Cases ------------------------------------------ /
+    
     // Text
     case plain(String? = nil)
     case xml(String? = nil)
@@ -74,7 +77,9 @@ enum ContentType: CustomStringConvertible {
     // Other
     case other(String, String, String? = nil)
     
-    var mimeType: String {
+    // 💻 Computed Properties --------------------------------- /
+    
+    public var mimeType: String {
         switch self {
         // Text
         case .plain: return "text/plain"
@@ -144,7 +149,7 @@ enum ContentType: CustomStringConvertible {
         }
     }
     
-    var param: String? {
+    public var param: String? {
         switch self {
         // Text
         case .plain(let param): return param
@@ -214,7 +219,7 @@ enum ContentType: CustomStringConvertible {
         }
     }
     
-    var description: String {
+    public var description: String {
         if let param = self.param {
             return "\(mimeType);\(param)"
         } else {
@@ -222,8 +227,11 @@ enum ContentType: CustomStringConvertible {
         }
     }
     
-    var type: String { String(mimeType.split(separator: "/")[0]) }
-    var subType: String { String(mimeType.split(separator: "/")[1]) }
+    public var type: String { String(mimeType.split(separator: "/")[0]) }
+    
+    public var subType: String { String(mimeType.split(separator: "/")[1]) }
+    
+    // Static --------------------------------- /
 
-    static let key = "Content-Type"
+    public static let key = "Content-Type"
 }

@@ -7,18 +7,25 @@
 
 import Foundation
 
-/// Holds the key and value strings to use in an HTTP request/response header
+/**
+ Holds the key and value strings to use in an HTTP request/response header
+ */
 public struct HTTPHeader: Hashable, Equatable {
+    
+    // ℹ️ Properties ------------------------------------------ /
+    
     public var key: String
     public var value: String
     
-    // Default initializer
+    // 🏁 Initializers ------------------------------------------ /
+    
+    /// Default initializer
     public init(key: String, value: String) {
         self.key = key
         self.value = value
     }
     
-    // Init with a case of the RequestHeader enum
+    /// Init with a case of the RequestHeader enum
     public init(with header: RequestHeader) {
         self.init(key: header.key, value: header.value)
     }
@@ -31,6 +38,7 @@ extension HTTPHeader: KeyValueConvertible {
     /// Looks up key
     func getKey() -> String { self.key }
     
+    /// Sets  key
     mutating func setKey(_ key: String) {
         self.key = key
     }

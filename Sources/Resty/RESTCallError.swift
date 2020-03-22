@@ -8,9 +8,12 @@
 import Foundation
 
 /**
- Possible errors that can be thrown by Resty
+ Possible errors that can be thrown by Resty calls
  */
-enum RESTCallError: Error, CustomStringConvertible {
+public enum RESTCallError: Error, CustomStringConvertible {
+    
+    // ⚠️ Error cases --------------------------------------- /
+    
     case noData(description: String = "No Data")
     case badRequest(data: Data? = nil)
     case unauthorized(data: Data? = nil)
@@ -20,8 +23,10 @@ enum RESTCallError: Error, CustomStringConvertible {
     case couldNotDecode(data: Data? = nil)
     case otherFailureCode(statusCode: Int, data: Data? = nil)
     
+    // 💻 Computed Properties --------------------------------- /
+    
     /// Gets the data (if any) associated with the error.
-    var data: Data? {
+    public var data: Data? {
         switch self {
         case .noData: return nil
         case .badRequest(let data): return data
@@ -35,7 +40,7 @@ enum RESTCallError: Error, CustomStringConvertible {
     }
     
     /// Gets the HTTP status code associated with error.
-    var statusCode: Int {
+    public var statusCode: Int {
         switch self {
         case .noData: return 500
         case .badRequest: return 400
@@ -49,7 +54,7 @@ enum RESTCallError: Error, CustomStringConvertible {
     }
     
     /// Gets a brief string description associated with the error.
-    var description: String {
+    public var description: String {
         switch self {
         case .noData(let description): return description
         case .badRequest: return "Bad Request"

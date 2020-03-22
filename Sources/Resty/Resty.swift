@@ -13,8 +13,13 @@ typealias FailureHandler = (RESTCallError, Response) -> Void
 
 typealias DecodeCompletionHandler<T: Decodable> = (Response, Result<T, RESTCallError>) -> Void
 
-/// Optional misc. settings for REST calls
+/**
+ Optional misc. settings for REST calls
+ */
 struct RequestOptions {
+    
+    // ℹ️ Properties ------------------------------------------ /
+    
     var cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     var timeoutInterval: Double = Double.infinity
 }
@@ -23,6 +28,9 @@ struct RequestOptions {
  The main tool to store all information for a REST call, send the request to the server and manage the response.
  */
 struct Resty {
+    
+    // ℹ️ Properties ------------------------------------------ /
+    
     var url: URL
     var queries: URLQueries? = nil
     var fullURL: URL
@@ -31,13 +39,22 @@ struct Resty {
     }
     var headers: HTTPHeaders? = nil
     var body: Body? = nil
+    
+    // 🕵️‍♂️ Private properties ----------------------------------- /
+    
     private var urlRequest: URLRequest
+    
+    private var semaphore = DispatchSemaphore (value: 0)
+    
+    // 💻 Computed Properties --------------------------------- /
+    
     var httpBody: Data? { urlRequest.httpBody }
     var cachePolicy: URLRequest.CachePolicy { urlRequest.cachePolicy }
     var timeoutInterval: Double { urlRequest.timeoutInterval }
     
-    private var semaphore = DispatchSemaphore (value: 0)
+    // 🏁 Initializers ------------------------------------------ /
     
+    /// Init with `URL`
     init(
         url: URL,
         queries: URLQueries? = nil,
@@ -69,6 +86,8 @@ struct Resty {
         self.headers?.map { urlRequest.setValue($0.value.value, forHTTPHeaderField: $0.value.key) }
         urlRequest.httpBody = body?.data
     }
+    
+    /// Init with string url instead of `URL`
     init(
         url: String,
         queries: URLQueries? = nil,
@@ -80,6 +99,9 @@ struct Resty {
         self.init(url: URL(string: url)!, queries: queries, method: method, headers: headers, body: body, setup: setup)
     }
     
+    // 🏃‍♂️ Methods ------------------------------------------ /
+    
+    /// Sends a Resty request with completion handler
     mutating func send(onCompletion completionHandler: @escaping RESTCompletionHandler) {
         let task = URLSession.shared.dataTask(with: urlRequest) { [self] data, urlResponse, error in
             let response = Response(
@@ -95,6 +117,7 @@ struct Resty {
         self.semaphore.wait()
     }
     
+    /// Sends a Resty request with separated success and failure completion handlers
     mutating func send(onfailure failureHandler: @escaping FailureHandler, onSuccess successHandler: @escaping SuccessHandler) {
         self.send { response in
             switch response.result {
@@ -124,11 +147,9 @@ struct Resty {
         
     }
     
-    /**
-     Static -------------------------------------------------
-     */
+    // ⛄️ Static ------------------------------------------ /
     
-    // GET ------------------------------
+    // GET ------------------------------ /
     
     static func get(
         _ url: URL,
@@ -150,7 +171,7 @@ struct Resty {
         Self.get(URL(string: url)!, queries: queries, setup: setup, onCompletion: completionHandler)
     }
     
-    // POST ------------------------------
+    // POST ------------------------------ /
     
     static func post(
         _ url: URL,
@@ -174,7 +195,7 @@ struct Resty {
         Self.post(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
-    // PUT ------------------------------
+    // PUT ------------------------------ /
     
     static func put(
         _ url: URL,
@@ -198,7 +219,7 @@ struct Resty {
         Self.put(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
-    // DELETE ------------------------------
+    // DELETE ------------------------------ /
     
     static func delete(
         _ url: URL,
@@ -222,7 +243,7 @@ struct Resty {
         Self.delete(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
-    // PATCH ------------------------------
+    // PATCH ------------------------------ /
     
     static func patch(
         _ url: URL,
@@ -246,7 +267,7 @@ struct Resty {
         Self.patch(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
-    // Decode ------------------------------
+    // Decode ------------------------------ /
     
     static func decode<T: Decodable>(
         _ url: URL,

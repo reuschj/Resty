@@ -52,7 +52,7 @@ public enum RequestHeader: CustomStringConvertible {
     case xAPIKey(String)
     case other(key: String, value: String)
     
-    var key: String {
+    public var key: String {
         switch self {
         case .accept: return "Accept"
         case .acceptCharset: return "Accept-Charset"
@@ -98,7 +98,7 @@ public enum RequestHeader: CustomStringConvertible {
         }
     }
     
-    var value: String {
+    public var value: String {
         switch self {
         case .accept(let value): return value.description
         case .acceptCharset(let value): return value
@@ -146,7 +146,7 @@ public enum RequestHeader: CustomStringConvertible {
         }
     }
     
-    var header: HTTPHeader { HTTPHeader(key: key, value: value) }
+    public var header: HTTPHeader { HTTPHeader(key: key, value: value) }
     
-    var description: String { "\(self.key): \(self.value)" }
+    public var description: String { "\(self.key): \(self.value)" }
 }

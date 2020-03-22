@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BodyParameters {
+public struct BodyParameters {
     var values: [String : Any] = [:]
     init(with values: [String : Any] = [:]) {
         self.values = values
