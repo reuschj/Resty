@@ -37,7 +37,7 @@ public struct HTTPHeaders: KeyValueMap {
     }
     
     public init(with headers: Set<HTTPHeader>) {
-         _ = headers.map { self.set($0, forKey: $0.key) }
+        _ = headers.map { self.set($0, forKey: $0.key) }
     }
     
     public init(with headers: [HTTPHeader]) {
@@ -45,7 +45,7 @@ public struct HTTPHeaders: KeyValueMap {
     }
     
     public init(with headers: HTTPHeader...) {
-         self.init(with: headers)
+        self.init(with: headers)
     }
     
     // 🏃‍♂️ Methods ------------------------------------------ /

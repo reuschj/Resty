@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// TODO: This may not be needed
 public struct BodyParameters {
     var values: [String : Any] = [:]
     init(with values: [String : Any] = [:]) {

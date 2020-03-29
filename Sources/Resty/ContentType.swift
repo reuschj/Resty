@@ -151,7 +151,7 @@ public enum ContentType: CustomStringConvertible {
     
     public var param: String? {
         switch self {
-        // Text
+        // Text ------------------------- /
         case .plain(let param): return param
         case .xml(let param): return param
         case .html(let param): return param
@@ -160,7 +160,7 @@ public enum ContentType: CustomStringConvertible {
         case .javascript(let param): return param
         case .asp(let param): return param
         case .richtext(let param): return param
-        // Application
+        // Application ------------------------- /
         case .json(let param): return param
         case .octetStream(let param): return param
         case .pdf(let param): return param
@@ -171,7 +171,7 @@ public enum ContentType: CustomStringConvertible {
         case .base64(let param): return param
         case .pksc8(let param): return param
         case .mime(let param): return param
-        // Images
+        // Images ------------------------- /
         case .apng(let param): return param
         case .bmp(let param): return param
         case .gif(let param): return param
@@ -182,7 +182,7 @@ public enum ContentType: CustomStringConvertible {
         case .tiff(let param): return param
         case .webP(let param): return param
         case .pict(let param): return param
-        // Audio
+        // Audio ------------------------- /
         case .wave(let param): return param
         case .wav(let param): return param
         case .xWav(let param): return param
@@ -193,28 +193,28 @@ public enum ContentType: CustomStringConvertible {
         case .aiff(let param): return param
         case .vorbis(let param): return param
         case .midi(let param): return param
-        // Video
+        // Video ------------------------- /
         case .mp4(let param): return param
         case .avi(let param): return param
         case .quicktime(let param): return param
         case .mpegVideo(let param): return param
         case .webmVideo(let param): return param
         case .oggVideo(let param): return param
-        // Multipart
+        // Multipart ------------------------- /
         case .formData(let param): return param
         case .byteranges(let param): return param
-        // Font
+        // Font ------------------------- /
         case .woff(let param): return param
         case .ttf(let param): return param
         case .otf(let param): return param
-        // Model
+        // Model ------------------------- /
         case .vml(let param): return param
         case .iges(let param): return param
         case .threeMf(let param): return param
-        // Message
+        // Message ------------------------- /
         case .rfc822(let param): return param
         case .partial(let param): return param
-        // Other
+        // Other ------------------------- /
         case .other(_, _, let param): return param
         }
     }

@@ -7,9 +7,16 @@
 
 import Foundation
 
+/// A function that checks the response object and validates success or failure
 public typealias ResponseChecker = (HTTPURLResponse?) -> Bool
 
+/**
+ The data and information from an HTTP respsonse
+ */
 public struct Response {
+    
+    // ℹ️ Properties ------------------------------------------ /
+    
     /// Holds data from a successful response or an error
     public var result: Result<Data, RESTCallError> {
         get { self._result }
@@ -38,10 +45,17 @@ public struct Response {
         didSet { setResult() }
     }
     
+    // 💻 Computed Properties --------------------------------- /
+    
     public var statusCode: Int { httpURLResponse?.statusCode ?? 500 }
+    
     public var url: URL? { httpURLResponse?.url }
+    
     public var mimeType: String? { httpURLResponse?.mimeType }
+    
     public var allHeaderFields: [AnyHashable : Any] { httpURLResponse?.allHeaderFields ?? [:] }
+    
+    // 🏁 Initializers ------------------------------------------ /
     
     init(data: Data?, response: HTTPURLResponse? = nil, error: Error? = nil, successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition) {
         self.data = data
@@ -60,6 +74,8 @@ public struct Response {
         let httpURLResponse = response as? HTTPURLResponse
         self.init(data: data, response: httpURLResponse, error: error, successCondition: successCondition)
     }
+    
+    // 🏃‍♂️ Methods ------------------------------------------ /
     
     private mutating func setResult(data: Data? = nil, response: HTTPURLResponse? = nil) {
         var error: RESTCallError

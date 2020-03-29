@@ -26,7 +26,6 @@ public struct Body: CustomStringConvertible {
     
     // 🏁 Initializers ------------------------------------------ /
     
-    
     /// Init with `Data` (as-is)
     public init(data: Data, contentType: ContentType? = nil) {
         self.data = data
@@ -45,16 +44,16 @@ public struct Body: CustomStringConvertible {
         self.contentType = contentType
     }
     
-    // TODO: Make init form dictionary
-//    public init?(dictionary: Dictionary[String:Any] = [:], contentType: ContentType? = .json()) {
-//        do {
-//            self.data = try JSONEncoder().encode(dictionary)
-//            self.contentType = contentType
-//        } catch {
-//            print(String(describing: error))
-//            return nil
-//        }
-//    }
+    /// Init with dictionary of encodable values
+    public init?(dictionary: Dictionary<AnyHashable, Any> = [:], contentType: ContentType? = .json()) {
+        do {
+            self.data = try JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted)
+            self.contentType = contentType
+        } catch {
+            print(String(describing: error))
+            return nil
+        }
+    }
     
     /// Init with `Encodable` type
     public init?<T: Encodable>(encodable: T, contentType: ContentType = .json()) {
