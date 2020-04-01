@@ -7,16 +7,17 @@
 
 import Foundation
 
-/// An enum of the most common request header settings
 // TODO: Dig into more of these
+
+/// An enum of the most common request header settings
 public enum RequestHeader: CustomStringConvertible {
-    case accept(ContentType)
+    case accept(ContentType = .json())
     case acceptCharset(String)
     case acceptEncoding(String)
     case acceptLanguage(String)
     case accessControlRequestHeaders(String)
     case accessControlRequestMethod(String)
-    case authorization(Authorization)
+    case authorization(Authorization = Authorization())
     case cacheControl(CacheControl)
     case connection(Connection)
     case contentMD5(String)
