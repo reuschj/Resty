@@ -1,5 +1,5 @@
 //
-//  URLParam.swift
+//  URLParamItem.swift
 //  Resty
 //
 //  Created by Justin Reusch on 3/31/20.
@@ -10,13 +10,13 @@ import Foundation
 /**
  Holds the key and value strings to use in a URL param
  */
-public struct URLParam: Hashable, Equatable, CustomStringConvertible {
+public struct URLParamItem: Hashable, Equatable, CustomStringConvertible {
     
     // ℹ️ Properties ------------------------------------------ /
     
     public var key: String
     public var value: String
-    public var position: Int?
+    var position: Int?
     
     // 💻 Computed Properties --------------------------------- /
     
@@ -35,7 +35,7 @@ public struct URLParam: Hashable, Equatable, CustomStringConvertible {
 
 // Extension adds conformance to `KeyValueConvertible` protocol
 // (These are a bit unnecessary for `URLParam`, but the protocol needs them in case a conforming type has an optional key or value)
-extension URLParam: KeyValueConvertible {
+extension URLParamItem: KeyValueConvertible {
     
     /// Looks up key
     func getKey() -> String { self.key }

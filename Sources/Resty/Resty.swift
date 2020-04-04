@@ -72,7 +72,7 @@ struct Resty {
         self.body = body
         self.headers = headers
         if let contentType = body?.contentType {
-            let httpHeader = HTTPHeader(with: .contentType(contentType))
+            let httpHeader = HTTPHeaderItem(with: .contentType(contentType))
             if var headers = self.headers {
                 if !headers.has(key: httpHeader.key) {
                     headers.set(httpHeader, forKey: httpHeader.key)

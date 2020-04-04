@@ -9,6 +9,16 @@ final class RestyTests: XCTestCase {
         XCTAssertEqual("Hello, World!", "Hello, World!")
     }
     
+    func testURLParams() {
+        let params = URLParams(with: [
+            URLParamItem(key: "year", value: "2020"),
+            URLParamItem(key: "month", value: "April"),
+            URLParamItem(key: "day", value: "01")
+        ])
+        XCTAssertTrue(params.count == 3)
+        XCTAssertEqual(params.description, "2020/April/01")
+    }
+    
     func testCall() {
         Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") {response in
             switch response.result {
@@ -35,6 +45,7 @@ final class RestyTests: XCTestCase {
 
     static var allTests = [
         ("testExample", testExample),
+        ("testURLParams", testURLParams),
         ("testCall", testCall),
     ]
 }

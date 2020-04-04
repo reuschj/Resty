@@ -147,7 +147,7 @@ public enum RequestHeader: CustomStringConvertible {
         }
     }
     
-    public var header: HTTPHeader { HTTPHeader(key: key, value: value) }
+    public var header: HTTPHeaderItem { HTTPHeaderItem(key: key, value: value) }
     
     public var description: String { "\(self.key): \(self.value)" }
 }

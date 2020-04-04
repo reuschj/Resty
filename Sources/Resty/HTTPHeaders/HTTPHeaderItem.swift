@@ -1,5 +1,5 @@
 //
-//  HTTPHeader.swift
+//  HTTPHeaderItem.swift
 //  Resty
 //
 //  Created by Justin Reusch on 3/14/20.
@@ -10,7 +10,7 @@ import Foundation
 /**
  Holds the key and value strings to use in an HTTP request/response header
  */
-public struct HTTPHeader: Hashable, Equatable {
+public struct HTTPHeaderItem: Hashable, Equatable {
     
     // ℹ️ Properties ------------------------------------------ /
     
@@ -33,7 +33,7 @@ public struct HTTPHeader: Hashable, Equatable {
 
 // Extension adds conformance to `KeyValueConvertible` protocol
 // (These are a bit unnecessary for `HTTPHeader`, but the protocol needs them in case a conforming type has an optional key or value)
-extension HTTPHeader: KeyValueConvertible {
+extension HTTPHeaderItem: KeyValueConvertible {
     
     /// Looks up key
     func getKey() -> String { self.key }

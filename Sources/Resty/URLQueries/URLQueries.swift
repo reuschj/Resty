@@ -14,7 +14,7 @@ public struct URLQueries: KeyValueMap {
     
     // ℹ️ Properties ------------------------------------------ /
     
-    public var values: [String : URLQueryItem] = [:]
+    public internal(set) var values: [String : URLQueryItem] = [:]
     
     // 💻 Computed Properties --------------------------------- /
     

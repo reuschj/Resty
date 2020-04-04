@@ -14,18 +14,18 @@ public struct HTTPHeaders: KeyValueMap {
     
     // ℹ️ Properties ------------------------------------------ /
     
-    public var values: [String : HTTPHeader] = [:]
+    public internal(set) var values: [String : HTTPHeaderItem] = [:]
     
     // 💻 Computed Properties --------------------------------- /
     
-    public var headerList: [HTTPHeader] { Array(self.values.values) }
+    public var headerList: [HTTPHeaderItem] { Array(self.values.values) }
     
-    public var headerSet: Set<HTTPHeader> { Set(self.values.values) }
+    public var headerSet: Set<HTTPHeaderItem> { Set(self.values.values) }
     
     // 🏁 Initializers ------------------------------------------ /
     
     public init(with values: [String : String] = [:]) {
-        _ = values.map { self.setValue($0.value, for: $0.key) }
+        _ = values.map { self.setValue($0.value, forKey: $0.key) }
     }
     
     public init(with headers: [RequestHeader]) {
@@ -36,25 +36,25 @@ public struct HTTPHeaders: KeyValueMap {
         self.init(with: headers)
     }
     
-    public init(with headers: Set<HTTPHeader>) {
+    public init(with headers: Set<HTTPHeaderItem>) {
         _ = headers.map { self.set($0, forKey: $0.key) }
     }
     
-    public init(with headers: [HTTPHeader]) {
+    public init(with headers: [HTTPHeaderItem]) {
         _ = headers.map { self.set($0, forKey: $0.key) }
     }
     
-    public init(with headers: HTTPHeader...) {
+    public init(with headers: HTTPHeaderItem...) {
         self.init(with: headers)
     }
     
     // 🏃‍♂️ Methods ------------------------------------------ /
     
-    public mutating func setValue(_ value: String, for key: String) {
+    public mutating func setValue(_ value: String, forKey key: String) {
         if var header = values[key] {
             header.value = value
         } else {
-            values[key] = HTTPHeader(key: key, value: value)
+            values[key] = HTTPHeaderItem(key: key, value: value)
         }
     }
 }
