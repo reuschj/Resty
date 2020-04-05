@@ -2,25 +2,32 @@ import XCTest
 @testable import Resty
 
 final class RestyTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual("Hello, World!", "Hello, World!")
-    }
     
     func testURLParams() {
-        let params = URLParams(with: [
+        var params = URLParams(with: [
             URLParamItem(key: "year", value: "2020"),
             URLParamItem(key: "month", value: "April"),
             URLParamItem(key: "day", value: "01")
         ])
         XCTAssertTrue(params.count == 3)
         XCTAssertEqual(params.description, "2020/April/01")
+        params.setValue("12", forKey: "hour")
+        XCTAssertTrue(params.count == 4)
+        XCTAssertEqual(params.description, "2020/April/01/12")
+        let removed = params.remove(key: "month")
+        XCTAssertEqual(removed, "April")
+        XCTAssertTrue(params.count == 3)
+        XCTAssertEqual(params.description, "2020/01/12")
+        let removed2 = params.remove(key: "year")
+        XCTAssertEqual(removed2, "2020")
+        XCTAssertTrue(params.count == 2)
+        XCTAssertEqual(params.description, "01/12")
+        params.setValue("15", forKey: "day")
+        XCTAssertEqual(params.description, "15/12")
     }
     
     func testCall() {
-        Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") {response in
+        Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") { response in
             switch response.result {
             case .success(let data):
                 XCTAssertEqual(response.statusCode, 200)
@@ -44,7 +51,6 @@ final class RestyTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testExample", testExample),
         ("testURLParams", testURLParams),
         ("testCall", testCall),
     ]

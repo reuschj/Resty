@@ -16,7 +16,7 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     
     public internal(set) var values: [String : URLParamItem] = [:]
     
-    private var order: [String] = []
+    private var orderKeeper: [String] = []
     
     // 💻 Computed Properties --------------------------------- /
     
@@ -24,12 +24,10 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     public var description: String { paramStringList.joined(separator: "/") }
     
     /// An array of the param values
-    public var paramStringList: [String] {
-        Array(self.values.values).map { $0.description }
-    }
+    public var paramStringList: [String] { orderKeeper.map { values[$0]!.value } }
     
     /// An array of `URLParam` instances
-    public var paramList: [URLParamItem] { Array(self.values.values) }
+    public var paramList: [URLParamItem] { orderKeeper.map { values[$0]! } }
     
     /// An set of `URLParam` instances
     public var paramSet: Set<URLParamItem> { Set(self.values.values) }
@@ -55,46 +53,44 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     // 🏃‍♂️ Methods ------------------------------------------ /
     
     public mutating func setValue(_ value: String, forKey key: String) {
-        if var param = values[key] {
-            param.value = value
-            if param.position == nil {
-                param.position = order.count
-                order.append(key)
-            }
-        } else {
+        guard var param = values[key] else {
             values[key] = URLParamItem(key: key, value: value)
-            if var param = values[key] {
-                param.position = order.count
-                order.append(key)
-            }
+            values[key]?.position = orderKeeper.count
+            orderKeeper.append(key)
+            return
         }
+        param.value = value
+        if param.position == nil || !orderKeeper.contains(key) {
+            param.position = orderKeeper.count
+            orderKeeper.append(key)
+        }
+        values[key] = param
     }
     
     public mutating func set(_ value: URLParamItem, forKey key: String) {
-        if var param = values[key] {
-            let position = param.position ?? order.count
-            param = value
-            param.position = position
-            if position < order.count {
-                order[position] = key
-            } else {
-                order.append(key)
-            }
-        } else {
+        guard var param = values[key] else {
             values[key] = value
-            if var param = values[key] {
-                param.position = order.count
-                order.append(key)
-            }
+            values[key]?.position = orderKeeper.count
+            orderKeeper.append(key)
+            return
         }
+        let position = param.position ?? orderKeeper.count
+        param = value
+        param.position = position
+        if position < orderKeeper.count {
+            orderKeeper[position] = key
+        } else {
+            orderKeeper.append(key)
+        }
+        values[key] = param
     }
     
     public mutating func remove(key: String) -> String? {
         guard let position = values[key]?.position else { return nil }
         let removedValue = values.removeValue(forKey: key)?.value
-        _ = order.remove(at: position)
-        for index in position...(order.count - 1) {
-            let keyToUpdate = order[index]
+        _ = orderKeeper.remove(at: position)
+        for index in position...(orderKeeper.count - 1) {
+            let keyToUpdate = orderKeeper[index]
             values[keyToUpdate]?.position = index
         }
         return removedValue
@@ -108,7 +104,7 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
    
     @discardableResult
     public func map<T>(_ transform: ((key: String, value: URLParamItem)) throws -> T) rethrows -> [T] {
-        return try order.map { key in
+        return try orderKeeper.map { key in
             guard let value = values[key] else {
                 throw URLParamsError.valueNotFound(key: key)
             }
@@ -118,7 +114,7 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     
     @discardableResult
     public func mapValues<T>(_ transform: ((key: String, value: String?)) throws -> T) rethrows -> [T] {
-        return try order.map { key in
+        return try orderKeeper.map { key in
             guard let value = values[key] else {
                 throw URLParamsError.valueNotFound(key: key)
             }
