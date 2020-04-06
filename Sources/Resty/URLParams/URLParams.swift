@@ -39,11 +39,11 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     }
     
     public init(with params: Set<URLParamItem>) {
-        _ = params.map { self.set($0, forKey: $0.key) }
+        _ = params.map { self.set($0) }
     }
     
     public init(with params: [URLParamItem] = []) {
-        _ = params.map { self.set($0, forKey: $0.key) }
+        _ = params.map { self.set($0) }
     }
     
     public init(with params: URLParamItem...) {
@@ -67,7 +67,8 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
         values[key] = param
     }
     
-    public mutating func set(_ value: URLParamItem, forKey key: String) {
+    public mutating func set(_ value: URLParamItem) {
+        let key = value.key
         guard var param = values[key] else {
             values[key] = value
             values[key]?.position = orderKeeper.count
@@ -98,7 +99,7 @@ public struct URLParams: KeyValueMap, CustomStringConvertible {
     
     public subscript(key: String) -> URLParamItem? {
         get { values[key] }
-        set { newValue.map { set($0, forKey: key) } }
+        set { newValue.map { set($0) } }
     }
         
    

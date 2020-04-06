@@ -39,7 +39,7 @@ protocol KeyValueMap {
     func get(forKey key: KeyValuePair.Key) -> KeyValuePair?
     func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value?
     
-    mutating func set(_ value: KeyValuePair, forKey key: KeyValuePair.Key) -> Void
+    mutating func set(_ value: KeyValuePair) -> Void
     mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) -> Void
     
     mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value?
@@ -52,6 +52,10 @@ protocol KeyValueMap {
  Default implementations
  */
 extension KeyValueMap {
+    
+    // 💻 Computed Properties --------------------------------- /
+    
+    /// Gets count of key/values stored within the map
     public var count: Int { values.count }
     
     public subscript(key: KeyValuePair.Key) -> KeyValuePair? {
@@ -72,7 +76,10 @@ extension KeyValueMap {
     public func get(forKey key: KeyValuePair.Key) -> KeyValuePair? { values[key] }
     public func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value? { values[key]?.getValue() }
     
-    public mutating func set(_ value: KeyValuePair, forKey key: KeyValuePair.Key) { values[key] = value }
+    public mutating func set(_ value: KeyValuePair) {
+        let key = value.getKey()
+        return values[key] = value
+    }
     public mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) {
         values[key]?.setValue(value)
     }

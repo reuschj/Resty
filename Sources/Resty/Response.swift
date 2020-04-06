@@ -66,7 +66,7 @@ public struct Response {
         _ = response?.allHeaderFields.map { header in
             guard let key = header.key as? String, let value = header.value as? String else { return }
             let httpHeader = HTTPHeaderItem(key: key, value: value)
-            self.headers.set(httpHeader, forKey: key)
+            self.headers.set(httpHeader)
         }
     }
     

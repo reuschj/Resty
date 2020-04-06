@@ -29,7 +29,7 @@ public struct HTTPHeaders: KeyValueMap {
     }
     
     public init(with headers: [RequestHeader]) {
-        _ = headers.map { self.set($0.header, forKey: $0.key) }
+        _ = headers.map { self.set($0.header) }
     }
     
     public init(with headers: RequestHeader...) {
@@ -37,11 +37,11 @@ public struct HTTPHeaders: KeyValueMap {
     }
     
     public init(with headers: Set<HTTPHeaderItem>) {
-        _ = headers.map { self.set($0, forKey: $0.key) }
+        _ = headers.map { self.set($0) }
     }
     
     public init(with headers: [HTTPHeaderItem]) {
-        _ = headers.map { self.set($0, forKey: $0.key) }
+        _ = headers.map { self.set($0) }
     }
     
     public init(with headers: HTTPHeaderItem...) {

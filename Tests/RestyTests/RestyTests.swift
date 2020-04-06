@@ -24,10 +24,41 @@ final class RestyTests: XCTestCase {
         XCTAssertEqual(params.description, "01/12")
         params.setValue("15", forKey: "day")
         XCTAssertEqual(params.description, "15/12")
+        params.set(URLParamItem(key: "hour", value: "11"))
+        XCTAssertEqual(params.description, "15/11")
     }
     
-    func testCall() {
+    func testGet() {
         Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") { response in
+            switch response.result {
+            case .success(let data):
+                XCTAssertEqual(response.statusCode, 200)
+                print("Status Code:", response.statusCode)
+                XCTAssertEqual(response.url, URL(string: "https://financialmodelingprep.com/api/v3/quote/AAPL,FB"))
+                print("URL:", response.url ?? "NA")
+                XCTAssertEqual(response.mimeType, "application/json")
+                print("MIME Type:", response.mimeType ?? "None")
+                let dataString = String(data: data, encoding: .utf8)!
+                XCTAssert(dataString.count > 0)
+                XCTAssert(dataString.contains("AAPL"))
+                XCTAssert(dataString.contains("marketCap"))
+                XCTAssert(dataString.contains("FB"))
+                print("Data:")
+                print(dataString)
+            case .failure(let restCallError):
+                let errorDescription = String(describing: restCallError)
+                XCTFail(errorDescription)
+            }
+        }
+    }
+    
+    func testGetWithParams() {
+        let urlParams = URLParams(with: [
+            URLParamItem(key: "version", value: "v3"),
+            URLParamItem(key: "type", value: "quote"),
+            URLParamItem(key: "symbols", value: "AAPL,FB")
+        ])
+        Resty.get("https://financialmodelingprep.com/api", params: urlParams) { response in
             switch response.result {
             case .success(let data):
                 XCTAssertEqual(response.statusCode, 200)
@@ -52,6 +83,7 @@ final class RestyTests: XCTestCase {
 
     static var allTests = [
         ("testURLParams", testURLParams),
-        ("testCall", testCall),
+        ("testGet", testGet),
+        ("testGetWithParams", testGetWithParams),
     ]
 }

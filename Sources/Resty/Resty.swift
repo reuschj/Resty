@@ -32,6 +32,7 @@ struct Resty {
     // ℹ️ Properties ------------------------------------------ /
     
     var url: URL
+    var params: URLParams? = nil
     var queries: URLQueries? = nil
     var fullURL: URL
     var method: HTTPMethod = .get {
@@ -57,6 +58,7 @@ struct Resty {
     /// Init with `URL`
     init(
         url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         method: HTTPMethod = .get,
         headers: HTTPHeaders? = nil,
@@ -64,10 +66,15 @@ struct Resty {
         setup: RequestOptions = RequestOptions()
     ) {
         self.url = url
+        self.params = params
         self.queries = queries
-        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)
-        urlComponents?.queryItems = queries?.queryItems
-        self.fullURL = urlComponents?.url ?? url
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+        if let urlParams = params {
+            let addSlash = urlComponents.path.last != "/"
+            urlComponents.path += "\(addSlash ? "/" : "")\(urlParams.description)"
+        }
+        urlComponents.queryItems = queries?.queryItems
+        self.fullURL = urlComponents.url ?? url
         self.method = method
         self.body = body
         self.headers = headers
@@ -75,13 +82,13 @@ struct Resty {
             let httpHeader = HTTPHeaderItem(with: .contentType(contentType))
             if var headers = self.headers {
                 if !headers.has(key: httpHeader.key) {
-                    headers.set(httpHeader, forKey: httpHeader.key)
+                    headers.set(httpHeader)
                 }
             } else {
                 self.headers = HTTPHeaders(with: httpHeader)
             }
         }
-        self.urlRequest = URLRequest(url: url, cachePolicy: setup.cachePolicy, timeoutInterval: setup.timeoutInterval)
+        self.urlRequest = URLRequest(url: fullURL, cachePolicy: setup.cachePolicy, timeoutInterval: setup.timeoutInterval)
         urlRequest.httpMethod = method.rawValue
         self.headers?.map { urlRequest.setValue($0.value.value, forHTTPHeaderField: $0.value.key) }
         urlRequest.httpBody = body?.data
@@ -90,13 +97,14 @@ struct Resty {
     /// Init with string url instead of `URL`
     init(
         url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         method: HTTPMethod = .get,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions()
     ) {
-        self.init(url: URL(string: url)!, queries: queries, method: method, headers: headers, body: body, setup: setup)
+        self.init(url: URL(string: url)!, params: params, queries: queries, method: method, headers: headers, body: body, setup: setup)
     }
     
     // 🏃‍♂️ Methods ------------------------------------------ /
@@ -153,118 +161,128 @@ struct Resty {
     
     static func get(
         _ url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        var restCall = Self(url: url, queries: queries, method: .get, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: .get, setup: setup)
         restCall.send(onCompletion: completionHandler)
     }
     static func get(
         _ url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        Self.get(URL(string: url)!, queries: queries, setup: setup, onCompletion: completionHandler)
+        Self.get(URL(string: url)!, params: params, queries: queries, setup: setup, onCompletion: completionHandler)
     }
     
     // POST ------------------------------ /
     
     static func post(
         _ url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        var restCall = Self(url: url, queries: queries, method: .post, headers: headers, body: body, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: .post, headers: headers, body: body, setup: setup)
         restCall.send(onCompletion: completionHandler)
     }
     static func post(
         _ url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        Self.post(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
+        Self.post(URL(string: url)!, params: params, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
     // PUT ------------------------------ /
     
     static func put(
         _ url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        var restCall = Self(url: url, queries: queries, method: .put, headers: headers, body: body, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: .put, headers: headers, body: body, setup: setup)
         restCall.send(onCompletion: completionHandler)
     }
     static func put(
         _ url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        Self.put(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
+        Self.put(URL(string: url)!, params: params, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
     // DELETE ------------------------------ /
     
     static func delete(
         _ url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        var restCall = Self(url: url, queries: queries, method: .delete, headers: headers, body: body, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: .delete, headers: headers, body: body, setup: setup)
         restCall.send(onCompletion: completionHandler)
     }
     static func delete(
         _ url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        Self.delete(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
+        Self.delete(URL(string: url)!, params: params, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
     // PATCH ------------------------------ /
     
     static func patch(
         _ url: URL,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        var restCall = Self(url: url, queries: queries, method: .patch, headers: headers, body: body, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: .patch, headers: headers, body: body, setup: setup)
         restCall.send(onCompletion: completionHandler)
     }
     static func patch(
         _ url: String,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping RESTCompletionHandler
     ) {
-        Self.patch(URL(string: url)!, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
+        Self.patch(URL(string: url)!, params: params, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
     
     // Decode ------------------------------ /
@@ -273,25 +291,27 @@ struct Resty {
         _ url: URL,
         method: HTTPMethod = .get,
         type: T.Type,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping DecodeCompletionHandler<T>
     ) {
-        var restCall = Self(url: url, queries: queries, method: method, headers: headers, body: body, setup: setup)
+        var restCall = Self(url: url, params: params, queries: queries, method: method, headers: headers, body: body, setup: setup)
         restCall.decode(type, onCompletion: completionHandler)
     }
     static func decode<T: Decodable>(
         _ url: String,
         method: HTTPMethod = .get,
         type: T.Type,
+        params: URLParams? = nil,
         queries: URLQueries? = nil,
         headers: HTTPHeaders? = nil,
         body: Body? = nil,
         setup: RequestOptions = RequestOptions(),
         onCompletion completionHandler: @escaping DecodeCompletionHandler<T>
     ) {
-        Self.decode(URL(string: url)!, method: method, type: type, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
+        Self.decode(URL(string: url)!, method: method, type: type, params: params, queries: queries, headers: headers, body: body, setup: setup, onCompletion: completionHandler)
     }
 }
