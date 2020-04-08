@@ -14,6 +14,7 @@ public enum RESTCallError: Error, CustomStringConvertible {
     
     // ⚠️ Error cases --------------------------------------- /
     
+    case badURL
     case noData(description: String = "No Data")
     case badRequest(data: Data? = nil)
     case unauthorized(data: Data? = nil)
@@ -28,6 +29,7 @@ public enum RESTCallError: Error, CustomStringConvertible {
     /// Gets the data (if any) associated with the error.
     public var data: Data? {
         switch self {
+        case .badURL: return nil
         case .noData: return nil
         case .badRequest(let data): return data
         case .unauthorized(let data): return data
@@ -42,6 +44,7 @@ public enum RESTCallError: Error, CustomStringConvertible {
     /// Gets the HTTP status code associated with error.
     public var statusCode: Int {
         switch self {
+        case .badURL: return 400
         case .noData: return 500
         case .badRequest: return 400
         case .unauthorized: return 401
@@ -56,6 +59,7 @@ public enum RESTCallError: Error, CustomStringConvertible {
     /// Gets a brief string description associated with the error.
     public var description: String {
         switch self {
+        case .badURL: return "Could not construct a valid URL."
         case .noData(let description): return description
         case .badRequest: return "Bad Request"
         case .unauthorized: return "Unauthorized"

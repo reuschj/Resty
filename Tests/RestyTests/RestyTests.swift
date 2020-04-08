@@ -29,26 +29,32 @@ final class RestyTests: XCTestCase {
     }
     
     func testGet() {
-        Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") { response in
-            switch response.result {
-            case .success(let data):
-                XCTAssertEqual(response.statusCode, 200)
-                print("Status Code:", response.statusCode)
-                XCTAssertEqual(response.url, URL(string: "https://financialmodelingprep.com/api/v3/quote/AAPL,FB"))
-                print("URL:", response.url ?? "NA")
-                XCTAssertEqual(response.mimeType, "application/json")
-                print("MIME Type:", response.mimeType ?? "None")
-                let dataString = String(data: data, encoding: .utf8)!
-                XCTAssert(dataString.count > 0)
-                XCTAssert(dataString.contains("AAPL"))
-                XCTAssert(dataString.contains("marketCap"))
-                XCTAssert(dataString.contains("FB"))
-                print("Data:")
-                print(dataString)
-            case .failure(let restCallError):
-                let errorDescription = String(describing: restCallError)
-                XCTFail(errorDescription)
+        do {
+            try Resty.get("https://financialmodelingprep.com/api/v3/quote/AAPL,FB") { response in
+                switch response.result {
+                case .success(let data):
+                    XCTAssertEqual(response.statusCode, 200)
+                    print("Status Code:", response.statusCode)
+                    XCTAssertEqual(response.url, URL(string: "https://financialmodelingprep.com/api/v3/quote/AAPL,FB"))
+                    print("URL:", response.url ?? "NA")
+                    XCTAssertEqual(response.mimeType, "application/json")
+                    print("MIME Type:", response.mimeType ?? "None")
+                    let dataString = String(data: data, encoding: .utf8)!
+                    XCTAssert(dataString.count > 0)
+                    XCTAssert(dataString.contains("AAPL"))
+                    XCTAssert(dataString.contains("marketCap"))
+                    XCTAssert(dataString.contains("FB"))
+                    print("Data:")
+                    print(dataString)
+                case .failure(let restCallError):
+                    let errorDescription = String(describing: restCallError)
+                    XCTFail(errorDescription)
+                }
             }
+        } catch {
+            let errorMessage = String(describing: error)
+            print(errorMessage)
+            assertionFailure(errorMessage)
         }
     }
     
@@ -58,26 +64,67 @@ final class RestyTests: XCTestCase {
             URLParamItem(key: "type", value: "quote"),
             URLParamItem(key: "symbols", value: "AAPL,FB")
         ])
-        Resty.get("https://financialmodelingprep.com/api", params: urlParams) { response in
-            switch response.result {
-            case .success(let data):
-                XCTAssertEqual(response.statusCode, 200)
-                print("Status Code:", response.statusCode)
-                XCTAssertEqual(response.url, URL(string: "https://financialmodelingprep.com/api/v3/quote/AAPL,FB"))
-                print("URL:", response.url ?? "NA")
-                XCTAssertEqual(response.mimeType, "application/json")
-                print("MIME Type:", response.mimeType ?? "None")
-                let dataString = String(data: data, encoding: .utf8)!
-                XCTAssert(dataString.count > 0)
-                XCTAssert(dataString.contains("AAPL"))
-                XCTAssert(dataString.contains("marketCap"))
-                XCTAssert(dataString.contains("FB"))
-                print("Data:")
-                print(dataString)
-            case .failure(let restCallError):
-                let errorDescription = String(describing: restCallError)
-                XCTFail(errorDescription)
+        do {
+            try Resty.get("https://financialmodelingprep.com/api", params: urlParams) { response in
+                switch response.result {
+                case .success(let data):
+                    XCTAssertEqual(response.statusCode, 200)
+                    print("Status Code:", response.statusCode)
+                    XCTAssertEqual(response.url, URL(string: "https://financialmodelingprep.com/api/v3/quote/AAPL,FB"))
+                    print("URL:", response.url ?? "NA")
+                    XCTAssertEqual(response.mimeType, "application/json")
+                    print("MIME Type:", response.mimeType ?? "None")
+                    let dataString = String(data: data, encoding: .utf8)!
+                    XCTAssert(dataString.count > 0)
+                    XCTAssert(dataString.contains("AAPL"))
+                    XCTAssert(dataString.contains("marketCap"))
+                    XCTAssert(dataString.contains("FB"))
+                    print("Data:")
+                    print(dataString)
+                case .failure(let restCallError):
+                    let errorDescription = String(describing: restCallError)
+                    XCTFail(errorDescription)
+                }
             }
+        } catch {
+            let errorMessage = String(describing: error)
+            print(errorMessage)
+            assertionFailure(errorMessage)
+        }
+    }
+    
+    func testPostWithQuery() {
+        let testString = "This is a test string"
+        let urlParams = URLParams(with: [
+            URLParamItem(key: "api", value: "response-headers")
+        ])
+        let urlQueries = URLQueries(with: [
+            URLQueryItem(name: "freeform", value: testString)
+        ])
+        do {
+            try Resty.post("https://httpbin.org", params: urlParams, queries: urlQueries) { response in
+                switch response.result {
+                case .success(let data):
+                    XCTAssertEqual(response.statusCode, 200)
+                    print("Status Code:", response.statusCode)
+                    XCTAssertEqual(response.url, URL(string: "https://httpbin.org/response-headers?freeform=\(testString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")"))
+                    print("URL:", response.url ?? "NA")
+                    XCTAssertEqual(response.mimeType, "application/json")
+                    print("MIME Type:", response.mimeType ?? "None")
+                    let dataString = String(data: data, encoding: .utf8)!
+                    XCTAssert(dataString.count > 0)
+                    XCTAssert(dataString.contains(testString))
+                    print("Data:")
+                    print(dataString)
+                case .failure(let restCallError):
+                    let errorDescription = String(describing: restCallError)
+                    XCTFail(errorDescription)
+                }
+            }
+        } catch {
+            let errorMessage = String(describing: error)
+            print(errorMessage)
+            assertionFailure(errorMessage)
         }
     }
 
@@ -85,5 +132,6 @@ final class RestyTests: XCTestCase {
         ("testURLParams", testURLParams),
         ("testGet", testGet),
         ("testGetWithParams", testGetWithParams),
+        ("testPostWithQuery", testPostWithQuery)
     ]
 }

@@ -10,7 +10,7 @@ import Foundation
 /**
  Errors that can be thrown by shift utility function
  */
-enum ShiftError<Amount: FloatingPoint>: Error, CustomStringConvertible {
+enum ShiftError<Amount: SignedNumeric & Comparable>: Error, CustomStringConvertible {
     
     // ⚠️ Error cases --------------------------------------- /
     
@@ -29,7 +29,7 @@ enum ShiftError<Amount: FloatingPoint>: Error, CustomStringConvertible {
 /**
  * Utility to shifts an amount by a value, but keeps within the given range, wrapping around as many times as needed
  */
-func shift<Amount: FloatingPoint>(_ amount: Amount, by shiftAmount: Amount, within range: ClosedRange<Amount>) throws -> Amount {
+func shift<Amount: SignedNumeric & Comparable>(_ amount: Amount, by shiftAmount: Amount, within range: ClosedRange<Amount>) throws -> Amount {
     guard range.contains(amount) else { throw ShiftError.inputAmountOutOfRange(amount: amount, range: range) }
     let low = range.lowerBound
     let high = range.upperBound
@@ -47,4 +47,4 @@ func shift<Amount: FloatingPoint>(_ amount: Amount, by shiftAmount: Amount, with
     } else {
         return try shift(low, by: diff - 1, within: range)
     }
-};
+}
