@@ -26,7 +26,7 @@ public struct HTTPHeaderItem: Hashable, Equatable {
     }
     
     /// Init with a case of the RequestHeader enum
-    public init(with header: RequestHeader) {
+    public init(from header: RequestHeader) {
         self.init(key: header.key, value: header.value)
     }
 }

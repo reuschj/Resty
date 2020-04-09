@@ -28,14 +28,6 @@ public struct HTTPHeaders: KeyValueMap {
         _ = values.map { self.setValue($0.value, forKey: $0.key) }
     }
     
-    public init(with headers: [RequestHeader]) {
-        _ = headers.map { self.set($0.header) }
-    }
-    
-    public init(with headers: RequestHeader...) {
-        self.init(with: headers)
-    }
-    
     public init(with headers: Set<HTTPHeaderItem>) {
         _ = headers.map { self.set($0) }
     }
@@ -46,6 +38,14 @@ public struct HTTPHeaders: KeyValueMap {
     
     public init(with headers: HTTPHeaderItem...) {
         self.init(with: headers)
+    }
+    
+    public init(from headers: [RequestHeader]) {
+        _ = headers.map { self.set($0.header) }
+    }
+    
+    public init(from headers: RequestHeader...) {
+        self.init(from: headers)
     }
     
     // 🏃‍♂️ Methods ------------------------------------------ /

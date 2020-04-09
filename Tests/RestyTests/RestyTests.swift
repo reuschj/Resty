@@ -64,8 +64,13 @@ final class RestyTests: XCTestCase {
             URLParamItem(key: "type", value: "quote"),
             URLParamItem(key: "symbols", value: "AAPL,FB")
         ])
+        let httpHeaders = HTTPHeaders(with: [
+            HTTPHeaderItem(from: .accept(.json())),
+            HTTPHeaderItem(from: .contentType(.plain())),
+            HTTPHeaderItem(from: .cacheControl(.noCache)),
+        ])
         do {
-            try Resty.get("https://financialmodelingprep.com/api", params: urlParams) { response in
+            try Resty.get("https://financialmodelingprep.com/api", params: urlParams, headers: httpHeaders) { response in
                 switch response.result {
                 case .success(let data):
                     XCTAssertEqual(response.statusCode, 200)
@@ -101,8 +106,17 @@ final class RestyTests: XCTestCase {
         let urlQueries = URLQueries(with: [
             URLQueryItem(name: "freeform", value: testString)
         ])
+        let httpHeaders = HTTPHeaders(with: [
+            HTTPHeaderItem(from: .accept(.json())),
+            HTTPHeaderItem(from: .cacheControl(.noCache)),
+        ])
+        let requestBody = Body(dictionary: [
+            "foo": 1,
+            "bar": 2,
+            "baz": 3,
+        ], contentType: .json())
         do {
-            try Resty.post("https://httpbin.org", params: urlParams, queries: urlQueries) { response in
+            try Resty.post("https://httpbin.org", params: urlParams, queries: urlQueries, headers: httpHeaders, body: requestBody) { response in
                 switch response.result {
                 case .success(let data):
                     XCTAssertEqual(response.statusCode, 200)
