@@ -32,18 +32,29 @@ protocol KeyValueMap {
     
     subscript(key: KeyValuePair.Key) -> KeyValuePair? { get set }
     
+    // Has ------- /
+    
+    /// Checks if map has key/value pair type
     func has(_ value: KeyValuePair) -> Bool
+    
+    /// Checks if map has a specific key
     func has(key: KeyValuePair.Key) -> Bool
+    
+    /// Checks if map has a specific value
     func has(value: KeyValuePair.Value) -> Bool
     
+    // Get ------- /
     func get(forKey key: KeyValuePair.Key) -> KeyValuePair?
     func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value?
     
+    // Set ------- /
     mutating func set(_ value: KeyValuePair) -> Void
     mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) -> Void
     
+    // Remove ------- /
     mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value?
     
+    // Map ------- /
     @discardableResult func map<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair)) throws -> T) rethrows -> [T]
     @discardableResult func mapValues<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair.Value?)) throws -> T) rethrows -> [T]
 }
@@ -63,8 +74,18 @@ extension KeyValueMap {
         set { values[key] = newValue }
     }
     
-    public func has(_ value: KeyValuePair) -> Bool { values[value.getKey()] != nil }
-    public func has(key: KeyValuePair.Key) -> Bool { values[key] != nil }
+    // 🏃‍♂️ Methods ------------------------------------------ /
+    
+    // Has ------- /
+    
+    public func has(_ value: KeyValuePair) -> Bool {
+        values[value.getKey()] != nil
+    }
+    
+    public func has(key: KeyValuePair.Key) -> Bool {
+        values[key] != nil
+    }
+    
     public func has(value: KeyValuePair.Value) -> Bool {
         for keyValuePair in values {
             guard let embeddedValue = keyValuePair.value.getValue() else { continue }
@@ -73,18 +94,34 @@ extension KeyValueMap {
         return false
     }
     
-    public func get(forKey key: KeyValuePair.Key) -> KeyValuePair? { values[key] }
-    public func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value? { values[key]?.getValue() }
+    // Get ------- /
+    
+    public func get(forKey key: KeyValuePair.Key) -> KeyValuePair? {
+        values[key]
+    }
+    
+    public func getValue(forKey key: KeyValuePair.Key) -> KeyValuePair.Value? {
+        values[key]?.getValue()
+    }
+    
+    // Set ------- /
     
     public mutating func set(_ value: KeyValuePair) {
         let key = value.getKey()
         return values[key] = value
     }
+    
     public mutating func setValue(_ value: KeyValuePair.Value, forKey key: KeyValuePair.Key) {
         values[key]?.setValue(value)
     }
     
-    public mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value? { values.removeValue(forKey: key)?.getValue() }
+    // Remove ------- /
+    
+    public mutating func remove(key: KeyValuePair.Key) -> KeyValuePair.Value? {
+        values.removeValue(forKey: key)?.getValue()
+    }
+    
+    // Map ------- /
     
     @discardableResult
     public func map<T>(_ transform: ((key: KeyValuePair.Key, value: KeyValuePair)) throws -> T) rethrows -> [T] {

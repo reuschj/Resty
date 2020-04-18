@@ -11,7 +11,7 @@ import Foundation
 public typealias ResponseChecker = (HTTPURLResponse?) -> Bool
 
 /**
- The data and information from an HTTP respsonse
+ The data and information from an HTTP response
  */
 public struct Response {
     
@@ -47,17 +47,34 @@ public struct Response {
     
     // 💻 Computed Properties --------------------------------- /
     
+    /// Status code from `HTTPURLResponse`
     public var statusCode: Int { httpURLResponse?.statusCode ?? 500 }
     
+    /// URL from `HTTPURLResponse`
     public var url: URL? { httpURLResponse?.url }
     
+    /// MIME type from `HTTPURLResponse`
     public var mimeType: String? { httpURLResponse?.mimeType }
     
+    /// Unmodified HTTP response headers from `HTTPURLResponse`
     public var allHeaderFields: [AnyHashable : Any] { httpURLResponse?.allHeaderFields ?? [:] }
     
     // 🏁 Initializers ------------------------------------------ /
     
-    init(data: Data?, response: HTTPURLResponse? = nil, error: Error? = nil, successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition) {
+    /**
+     Init with possible `HTTPURLResponse`
+     
+     - Parameter data: Possible `Data` from response
+     - Parameter data: Possible  `HTTPURLResponse` from response
+     - Parameter error: Possible error from response
+     - Parameter successCondition: Closure to determine success vs. failure for the `Result`
+     */
+    init(
+        data: Data?,
+        response: HTTPURLResponse? = nil,
+        error: Error? = nil,
+        successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition
+    ) {
         self.data = data
         self.httpURLResponse = response
         self.originalError = error
@@ -70,13 +87,27 @@ public struct Response {
         }
     }
     
-    init(data: Data?, response: URLResponse?, error: Error? = nil, successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition) {
+    /**
+     Init with possible `URLResponse`
+     
+     - Parameter data: Possible `Data` from response
+     - Parameter data: Possible  `URLResponse` from response
+     - Parameter error: Possible error from response
+     - Parameter successCondition: Closure to determine success vs. failure for the `Result`
+     */
+    init(
+        data: Data?,
+        response: URLResponse?,
+        error: Error? = nil,
+        successCondition: @escaping ResponseChecker = Response.defaultSuccessCondition
+    ) {
         let httpURLResponse = response as? HTTPURLResponse
         self.init(data: data, response: httpURLResponse, error: error, successCondition: successCondition)
     }
     
     // 🏃‍♂️ Methods ------------------------------------------ /
     
+    /// Sets the `Result` based on response and success condition supplied
     private mutating func setResult(data: Data? = nil, response: HTTPURLResponse? = nil) {
         var error: RESTCallError
         guard let data = data else {
@@ -110,12 +141,15 @@ public struct Response {
         }
     }
     
+    /// The default success condition to use (just checks that response status code is between 100 and 299)
     static let defaultSuccessCondition: ResponseChecker = { httpURLResponse in
         let statusCode = httpURLResponse?.statusCode ?? 500
         return statusCode >= 100 && statusCode < 300
     }
 }
 
+/// Enum of Response Headers
+/// TODO: Build this out more
 enum ResponseHeader: CustomStringConvertible {
     case acceptPatch
     case acceptRanges
